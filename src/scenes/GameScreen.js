@@ -16,16 +16,24 @@ export default class Game extends Phaser.Scene {
 
         ball.body.setVelocity(-200, 0)
 
-        const paddleLeft = this.add.rectangle(50, 250, 30, 100, 0xffffff, 1)
+        this.paddleLeft = this.add.rectangle(50, 250, 30, 100, 0xffffff, 1)
 
-        this.physics.add.existing(paddleLeft, true)
+        this.physics.add.existing(this.paddleLeft, true)
 
-        /** @ type {Phase.Physics.Arcade.body} */
-        // const body = paddleLeft.body
-
-
-
-        this.physics.add.collider(ball, paddleLeft)
+        this.physics.add.collider(ball, this.paddleLeft)
+        this.cursors = this.input.keyboard.createCursorKeys()
+    }
+    update() {
+        /** @ type {Phase.Physics.Arcade.StaticBody} */
+        const body = this.paddleLeft.body
+        if (this.cursors.up.isDown) {
+            this.paddleLeft.y -= 10
+            body.updateFromGameObject()
+        }
+        else if (this.cursors.down.isDown) {
+            this.paddleLeft.y += 10
+            body.updateFromGameObject()
+        }
 
     }
 }
