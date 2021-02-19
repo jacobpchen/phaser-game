@@ -11,6 +11,10 @@ export default class Game extends Phaser.Scene {
         this.leftScore = 0
         this.rightScore = 0
 
+        this.pause = false
+
+
+
     }
 
     preload() {
@@ -61,6 +65,9 @@ export default class Game extends Phaser.Scene {
         })
     }
     update() {
+        if (this.pause) {
+            return
+        }
         this.processPlayerInput()
         this.updateAI()
         this.checkScore()
@@ -68,18 +75,44 @@ export default class Game extends Phaser.Scene {
     }
 
     checkScore() {
+        const x = this.ball.x
+        const leftBounds = -30
+        const rightBounds = 830
+        if (x >= leftBounds && x <= rightBounds) {
+            return
+        }
+
         // When the ball goes out of bounds reset
-        if (this.ball.x < -30) {
+        if (this.ball.x < leftBounds) {
             // score for right
-            this.resetBall()
             this.incrementRightScore()
 
         }
-        else if (this.ball.x > 830) {
+        else if (this.ball.x > rightBounds) {
             // score for left
-            this.resetBall()
             this.incrementLeftScore
         }
+
+        // game end
+        const maxScore = 1
+        if (this.leftScore >= maxScore) {
+            // player wins
+            console.log("Player won")
+            this.pause = true
+        }
+        else if (this.rightScore >= maxScore) {
+            // ai wins
+            console.log("AI won")
+            this.pause = true
+        }
+
+        if (!this.pause) {
+            this.resetBall()
+        } else {
+            this.ball.active = false
+            this.physics.world.remove(this.ball.body)
+        }
+
     }
 
     processPlayerInput() {
