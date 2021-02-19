@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import WebFontFile from './WebFontFile'
+import { GameBackground } from '../consts/SceneKeys'
+import * as Colors from '../consts/Colors'
 
 export default class Game extends Phaser.Scene {
 
@@ -14,16 +16,15 @@ export default class Game extends Phaser.Scene {
     preload() {
         const fonts = new WebFontFile(this.load, 'Press Start 2P')
         this.load.addFile(fonts)
-
     }
 
     create() {
-        this.scene.run('game-background')
-        this.scene.sendToBack('game-background')
+        this.scene.run(GameBackground)
+        this.scene.sendToBack(GameBackground)
 
         this.physics.world.setBounds(-100, 0, 1000, 500)
 
-        this.ball = this.add.circle(400, 250, 10, 0xffffff, 1)
+        this.ball = this.add.circle(400, 250, 10, Colors.White, 1)
         this.physics.add.existing(this.ball)
         this.ball.body.setBounce(1, 1)
 
@@ -32,10 +33,10 @@ export default class Game extends Phaser.Scene {
         this.resetBall()
 
         // Create a left paddle
-        this.paddleLeft = this.add.rectangle(50, 250, 30, 100, 0xffffff, 1)
+        this.paddleLeft = this.add.rectangle(50, 250, 30, 100, Colors.White, 1)
         this.physics.add.existing(this.paddleLeft, true)
         // Create a right paddle
-        this.paddleRight = this.add.rectangle(750, 250, 30, 100, 0xffffff, 1)
+        this.paddleRight = this.add.rectangle(750, 250, 30, 100, Colors.White, 1)
         this.physics.add.existing(this.paddleRight, true)
 
         // Add collision detection
@@ -57,6 +58,28 @@ export default class Game extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys()
     }
     update() {
+        this.processPlayerInput()
+        this.updateAI()
+        this.checkScore()
+
+    }
+
+    checkScore() {
+        // When the ball goes out of bounds reset
+        if (this.ball.x < -30) {
+            // score for right
+            this.resetBall()
+            this.incrementRightScore()
+
+        }
+        else if (this.ball.x > 830) {
+            // score for left
+            this.resetBall()
+            this.incrementLeftScore
+        }
+    }
+
+    processPlayerInput() {
         /** @ type {Phase.Physics.Arcade.StaticBody} */
         const body = this.paddleLeft.body
         if (this.cursors.up.isDown) {
@@ -68,6 +91,9 @@ export default class Game extends Phaser.Scene {
             body.updateFromGameObject()
         }
 
+    }
+
+    updateAI() {
         // AI paddle
         const diff = this.ball.y - this.paddleRight.y
         if (Math.abs(diff) < 10) {
@@ -91,19 +117,6 @@ export default class Game extends Phaser.Scene {
 
         this.paddleRight.y += this.paddleRightVelocity.y
         this.paddleRight.body.updateFromGameObject()
-
-        // When the ball goes out of bounds reset
-        if (this.ball.x < -30) {
-            // score for right
-            this.resetBall()
-            this.incrementRightScore()
-
-        }
-        else if (this.ball.x > 830) {
-            // score for left
-            this.resetBall()
-            this.incrementLeftScore
-        }
     }
 
     resetBall() {
