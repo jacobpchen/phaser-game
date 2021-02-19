@@ -18,6 +18,8 @@ export default class Game extends Phaser.Scene {
     }
 
     create() {
+        this.scene.run('game-background')
+        this.scene.sendToBack('game-background')
 
         this.physics.world.setBounds(-100, 0, 1000, 500)
 
